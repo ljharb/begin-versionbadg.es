@@ -1,39 +1,71 @@
-// Enable secure sessions, express-style middleware, and more:
-// https://docs.begin.com/en/functions/http/
-//
-// let begin = require('@architect/functions')
+'use strict';
 
-let html = `
-<!doctype html>
-<html lang=en>
-  <head>
-    <meta charset=utf-8>
-    <title>Hi!</title>
-    <link rel="stylesheet" href="https://static.begin.app/starter/default.css">
-    <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" rel="icon" type="image/x-icon" />
-  </head>
-  <body>
-    <h1 class="center-text">
-      Hello world!
-    </h1>
-    <p class="center-text">
-      Your new route is ready to go!
-    </p>
-    <p class="center-text">
-      Learn more about building <a href="https://docs.begin.com/en/functions/http/" class="link" target="_blank">Begin HTTP functions here</a>.
-    </p>
-  </body>
-</html>
-`
+const request = require('request');
 
-// HTTP function
-exports.handler = async function http(req) {
-  console.log(req)
-  return {
-    headers: {
-      'content-type': 'text/html; charset=utf8',
-      'cache-control': 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0'
-    },
-    body: html
-  }
+async function getVersion(user, repo) {
+	const url = `https://raw.github.com/${user}/${repo}/master/package.json`;
+	const { version } = await new Promise((resolve, reject) => {
+		request.get({ url: url, json: true }, function (err, response, body) {
+			if (err) {
+				reject(err);
+			} else {
+				resolve(body);
+			}
+		});
+	});
+	return version;
 }
+
+async function svgBadge(user, repo) {
+	const userValid = typeof user === 'string' && user.length > 0;
+	const repoValid = typeof repo === 'string' && repo.length > 0;
+	if (!userValid && !repoValid) {
+		throw [404];
+	}
+	if (!userValid) {
+		throw [400, 'user param not specified'];
+	}
+	if (!repoValid) {
+		throw [400, 'repo param not specified'];
+	}
+	const svgFormat = /\.svg$/;
+	if (!svgFormat.test(repo)) {
+		throw [301, `/${user}/${repo}.svg`];
+	}
+	const repoSanitized = repo.replace(svgFormat, '');
+	const version = await getVersion(user, repoSanitized);
+	if (typeof version !== 'string' || version === '') {
+		throw [422, 'valid version not found in package.json'];
+	};
+	return {
+		headers: {
+			'cache-control': 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0',
+			'content-type': 'image/svg+xml',
+		},
+		statusCode: 200,
+		body: `<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="10"><text y="9" font-size="12" fill="#2d2d2d" font-family="Arial">v${version}</text></svg>`,
+	};
+};
+
+exports.handler = async function http(request) {
+	const [, user, repo] = request.path.match(/^\/([^\/]+)\/([^\/]+)$/) || [];
+	try {
+		return await svgBadge(user, repo);
+	} catch (e) {
+		if (Array.isArray(e)) {
+			const [statusCode, data] = e;
+			if (statusCode === 301) {
+				return {
+					headers: {
+						Location: data,
+					},
+					statusCode,
+				};
+			}
+			return {
+				statusCode,
+				body: data,
+			};
+		}
+	}
+};
