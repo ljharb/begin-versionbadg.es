@@ -7,7 +7,7 @@
     "start": "npx sandbox"
   },
   "devDependencies": {
-    "@architect/sandbox": "^1.8.1",
+    "@architect/sandbox": "^1.9.2",
     "eslint": "^6.8.0"
   }
 }
