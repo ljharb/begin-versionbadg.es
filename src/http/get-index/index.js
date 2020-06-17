@@ -6,7 +6,7 @@ async function getVersion(user, repo) {
 	const url = `https://raw.github.com/${user}/${repo}/master/package.json`;
 	const { version } = await new Promise((resolve, reject) => {
 		request.get({ url: url, json: true }, function (err, response, body) {
-			if (err) {
+			if (err || response.code < 200 || response.code > 300) {
 				reject(err);
 			} else {
 				resolve(body);
@@ -35,7 +35,7 @@ async function svgBadge(user, repo) {
 	const repoSanitized = repo.replace(svgFormat, '');
 	const version = await getVersion(user, repoSanitized);
 	if (typeof version !== 'string' || version === '') {
-		throw [422, 'valid version not found in package.json'];
+		throw [422, `valid version not found in package.json: found ${version}`];
 	};
 	return {
 		headers: {
