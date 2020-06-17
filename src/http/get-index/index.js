@@ -2,8 +2,8 @@
 
 const request = require('request');
 
-async function getVersion(user, repo) {
-	const url = `https://raw.github.com/${user}/${repo}/master/package.json`;
+async function getVersion(user, repo, defaultBranch = 'master') {
+	const url = `https://raw.github.com/${user}/${repo}/${defaultBranch}/package.json`;
 	const { version } = await new Promise((resolve, reject) => {
 		request.get({ url: url, json: true }, function (err, response, body) {
 			if (err || response.statusCode < 200 || response.statusCode > 300) {
@@ -33,7 +33,7 @@ async function svgBadge(user, repo) {
 		throw [301, `/${user}/${repo}.svg`];
 	}
 	const repoSanitized = repo.replace(svgFormat, '');
-	const version = await getVersion(user, repoSanitized);
+	const version = await getVersion(user, repoSanitized).catch(() => getVersion(user, repoSanitized, 'main'));
 	if (typeof version !== 'string' || version === '') {
 		throw [422, `valid version not found in package.json: found ${version}`];
 	};
