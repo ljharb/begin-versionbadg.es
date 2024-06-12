@@ -1,19 +1,8 @@
-'use strict';
-
-const request = require('request');
-
 async function getVersion(user, repo) {
 	const url = `https://raw.github.com/${user}/${repo}/HEAD/package.json`;
-	const { version } = await new Promise((resolve, reject) => {
-		request.get({ url: url, json: true }, function (err, response, body) {
-			if (err || response.statusCode < 200 || response.statusCode > 300) {
-				reject([response.statusCode, err || response.body]);
-			} else {
-				resolve(body);
-			}
-		});
-	});
-	return version;
+  const raw = await fetch(url)
+  const { version } = await raw.json()
+  return version
 }
 
 async function svgBadge(user, repo) {
@@ -47,8 +36,8 @@ async function svgBadge(user, repo) {
 	};
 };
 
-exports.handler = async function http(request) {
-	const [, user, repo] = request.path.match(/^\/([^\/]+)\/([^\/]+)$/) || [];
+export async function handler ({pathParameters}) {
+  let { user, repo } = pathParameters
 	try {
 		return await svgBadge(user, repo);
 	} catch (e) {
