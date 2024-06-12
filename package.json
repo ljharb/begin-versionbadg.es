@@ -1,13 +1,38 @@
 {
-  "name": "begin-app",
-  "version": "1.0.0",
-  "description": "A simple Begin app with the minimum necessary file structure",
+  "name": "versionbadg.es",
+  "version": "0.0.0",
+  "private": true,
+  "architect": {
+    "aws": {
+      "region": "us-east-1",
+      "profile": "ljharb"
+    },
+    "plugins": ["arc-plugin-custom-domain"],
+    "cdn": [
+      ["staging", "stage.versionbadg.es"],
+      ["production", "versionbadg.es"],
+      ["cert", "arn:aws:acm:us-east-1:590183939507:certificate/bb3719c9-932f-4459-81c5-c03302925e64"]
+    ],
+    "app": "version-badges",
+    "http": {
+      "/:user/:repo": {
+        "method": "get",
+        "src": "./handler"
+      }
+    }
+  },
   "scripts": {
     "lint": "eslint .",
-    "start": "npx sandbox"
+    "start": "sandbox",
+    "test": "echo 'good first issue'",
+    "deploy:staging": "arc-deploy",
+    "deploy:production": "arc-deploy --production"
   },
   "devDependencies": {
-    "@architect/sandbox": "^1.13.3",
+    "@architect/sandbox": "^6.0.5",
     "eslint": "^8.29.0"
+  },
+  "dependencies": {
+    "arc-plugin-custom-domain": "^0.0.1"
   }
 }
