@@ -1,16 +1,34 @@
 {
   "architect": {
+    "aws": {
+      "region": "us-east-1",
+      "profile": "jharb"
+    },
+    "plugins": ["arc-plugin-custom-domain"],
+    "cdn": [
+      ["staging", "stage.versionbadg.es"],
+      ["production", "versionbadg.es"],
+      ["cert", "arn:aws:acm:us-east-1:590183939507:certificate/bb3719c9-932f-4459-81c5-c03302925e64"]
+    ],
     "app": "version-badges",
     "http": {
-      "/:user/:repo": { "method": "get", "src": "./handler" }
+      "/:user/:repo": {
+        "method": "get",
+        "src": "./handler"
+      }
     }
   },
   "scripts": {
     "lint": "eslint .",
-    "start": "sandbox"
+    "start": "sandbox",
+    "deploy:staging": "arc-deploy",
+    "deploy:production": "arc-deploy --production"
   },
   "devDependencies": {
     "@architect/sandbox": "^6.0.5",
     "eslint": "^8.29.0"
+  },
+  "dependencies": {
+    "arc-plugin-custom-domain": "^0.0.1"
   }
 }
