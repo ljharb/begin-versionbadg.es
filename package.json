@@ -5,7 +5,8 @@
   "architect": {
     "aws": {
       "region": "us-east-1",
-      "profile": "ljharb"
+      "profile": "ljharb",
+      "runtime": "nodejs20.x"
     },
     "plugins": [
       "arc-plugin-custom-domain"
@@ -50,5 +51,8 @@
   },
   "dependencies": {
     "arc-plugin-custom-domain": "^0.0.1"
+  },
+  "engines": {
+    "node": "^20"
   }
 }
