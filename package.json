@@ -1,17 +1,28 @@
 {
   "name": "versionbadg.es",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "architect": {
     "aws": {
       "region": "us-east-1",
       "profile": "ljharb"
     },
-    "plugins": ["arc-plugin-custom-domain"],
+    "plugins": [
+      "arc-plugin-custom-domain"
+    ],
     "cdn": [
-      ["staging", "stage.versionbadg.es"],
-      ["production", "versionbadg.es"],
-      ["cert", "arn:aws:acm:us-east-1:590183939507:certificate/bb3719c9-932f-4459-81c5-c03302925e64"]
+      [
+        "staging",
+        "stage.versionbadg.es"
+      ],
+      [
+        "production",
+        "versionbadg.es"
+      ],
+      [
+        "cert",
+        "arn:aws:acm:us-east-1:590183939507:certificate/bb3719c9-932f-4459-81c5-c03302925e64"
+      ]
     ],
     "app": "version-badges",
     "http": {
