@@ -33,15 +33,20 @@
     }
   },
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint --ext=js,mjs .",
     "start": "sandbox",
-    "test": "echo 'good first issue'",
+    "pretest": "npm run lint",
+    "tests-only": "echo 'good first issue'",
+    "test": "npm run tests-only",
+    "posttest": "aud --production",
     "deploy:staging": "arc-deploy",
     "deploy:production": "arc-deploy --production"
   },
   "devDependencies": {
     "@architect/sandbox": "^6.0.5",
-    "eslint": "^8.29.0"
+    "@ljharb/eslint-config": "^21.1.1",
+    "aud": "^2.0.4",
+    "eslint": "=8.8.0"
   },
   "dependencies": {
     "arc-plugin-custom-domain": "^0.0.1"
