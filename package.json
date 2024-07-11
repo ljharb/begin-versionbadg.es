@@ -27,6 +27,10 @@
     ],
     "app": "version-badges",
     "http": {
+      "/": {
+        "method": "get",
+        "src": "./root"
+      },
       "/:user/:repo": {
         "method": "get",
         "src": "./handler"
